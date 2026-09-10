@@ -45,9 +45,36 @@ const decisionClass = (decision?: string): string => {
   }
 };
 
+const MULTILINE_COLUMNS: Array<keyof ITenderRow> = ['WinnerDetails', 'AltWinnerDetails'];
+
 const formatCell = (row: ITenderRow, key: keyof ITenderRow): string => {
   const value = row[key];
   return value === undefined || value === null ? '' : String(value);
+};
+
+const renderCellContent = (row: ITenderRow, key: keyof ITenderRow): React.ReactNode => {
+  const value = formatCell(row, key);
+
+  if (!MULTILINE_COLUMNS.includes(key)) {
+    return value;
+  }
+
+  const items = value
+    .split(';')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+
+  if (items.length <= 1) {
+    return value;
+  }
+
+  return (
+    <div className="tender-table-multiline">
+      {items.map((item, index) => (
+        <div className="tender-table-multiline-item" key={index}>{item}</div>
+      ))}
+    </div>
+  );
 };
 
 const TenderTable = (props: ITenderTableProps) => {
@@ -163,7 +190,7 @@ const TenderTable = (props: ITenderTableProps) => {
                       key={col.key as string}
                       className={[`col-${col.key}`, col.key === 'Decision' ? decisionClass(row.Decision) : ''].join(' ').trim()}
                     >
-                      {formatCell(row, col.key)}
+                      {renderCellContent(row, col.key)}
                     </td>
                   ))}
                 </tr>

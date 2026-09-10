@@ -93,12 +93,29 @@
 }
 
 .tender-table td {
-  padding: 0 14px;
-  height: var(--tt-row-height);
+  padding: 8px 14px;
+  min-height: var(--tt-row-height);
   box-sizing: border-box;
   border-bottom: 1px solid var(--tt-border-color);
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.tender-table td.col-WinnerDetails,
+.tender-table td.col-AltWinnerDetails {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.tender-table-multiline {
+  display: flex;
+  flex-direction: column;
+}
+
+.tender-table-multiline-item {
+  line-height: 1.6;
 }
 
 .tender-table tbody tr {

@@ -32,7 +32,7 @@ const MOCK_DATA: ITenderRow[] = [
     DiscountPercentage: '0',
     DeferralCondition: 'Тестовое условие',
     ForWinner: '1',
-    WinnerDetails: 'Петров П.',
+    WinnerDetails: 'Петров П.; Тето К.; Хатсуне М.; Шигихара Л',
     ForAltWinner: '1',
     AltWinnerDetails: 'Сидоров С.',
     Decision: 'Победитель'
@@ -79,7 +79,7 @@ export async function fetchTenderProtocol(apiUrl?: string, assignmentId?: number
       throw error;
     }
     console.warn('Не удалось получить данные протокола от внешней системы, использованы моковые данные.', error);
-    return MOCK_DATA;
+    return [];
   }
 }
 
