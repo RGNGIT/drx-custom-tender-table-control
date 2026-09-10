@@ -1,0 +1,156 @@
+:root {
+  --tt-header-color: rgb(26, 26, 26);
+  --tt-text-color: rgb(26, 26, 26);
+  --tt-border-color: rgb(223, 224, 227);
+  --tt-row-hover-bg: rgba(0, 84, 160, 0.05);
+  --tt-row-selected-bg: rgb(230, 242, 255);
+  --tt-amount-color: rgb(0, 84, 160);
+  --tt-votes-color: rgb(230, 126, 34);
+  --tt-decision-winner-color: rgb(46, 139, 87);
+  --tt-decision-alt-color: rgb(0, 84, 160);
+  --tt-bg-color: white;
+  --tt-error-color: rgb(200, 60, 60);
+  --tt-header-height: 37px;
+  --tt-row-height: 41px;
+  --tt-visible-rows: 5;
+}
+
+.night-theme {
+  --tt-header-color: rgb(230, 230, 230);
+  --tt-text-color: rgb(220, 220, 220);
+  --tt-border-color: rgb(95, 94, 94);
+  --tt-row-hover-bg: rgba(111, 179, 242, 0.08);
+  --tt-row-selected-bg: rgb(35, 55, 75);
+  --tt-amount-color: rgb(111, 179, 242);
+  --tt-votes-color: rgb(240, 160, 90);
+  --tt-decision-winner-color: rgb(120, 200, 120);
+  --tt-decision-alt-color: rgb(111, 179, 242);
+  --tt-bg-color: rgb(53, 53, 53);
+  --tt-error-color: rgb(230, 120, 120);
+}
+
+.tender-table {
+  width: 100%;
+  font-size: 13px;
+  color: var(--tt-text-color);
+  background-color: var(--tt-bg-color);
+}
+
+.tender-table-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin-bottom: 10px;
+  color: var(--tt-header-color);
+}
+
+.tender-table-scroll {
+  width: 100%;
+  overflow: auto;
+  max-height: calc(var(--tt-header-height) + var(--tt-row-height) * var(--tt-visible-rows));
+}
+
+.tender-table table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  white-space: nowrap;
+}
+
+.tender-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  text-align: left;
+  font-weight: 600;
+  color: var(--tt-header-color);
+  background-color: var(--tt-bg-color);
+  padding: 0 14px;
+  height: var(--tt-header-height);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--tt-border-color);
+  overflow: hidden;
+}
+
+.tender-table-th-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tender-table-resizer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  width: 6px;
+  cursor: col-resize;
+  user-select: none;
+}
+
+.tender-table-resizer:hover,
+.tender-table-resizer:active {
+  background-color: var(--tt-amount-color);
+  opacity: 0.4;
+}
+
+.tender-table td {
+  padding: 0 14px;
+  height: var(--tt-row-height);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--tt-border-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tender-table tbody tr {
+  cursor: pointer;
+  transition: background-color .15s;
+}
+
+.tender-table tbody tr:hover {
+  background-color: var(--tt-row-hover-bg);
+}
+
+.tender-table tbody tr.row-selected {
+  background-color: var(--tt-row-selected-bg);
+}
+
+.tender-table td.col-FinalAmount,
+.tender-table td.col-DiscountPercentage {
+  color: var(--tt-amount-color);
+}
+
+.tender-table td.col-ForWinner,
+.tender-table td.col-ForAltWinner {
+  color: var(--tt-votes-color);
+}
+
+.tender-table td.decision-winner {
+  color: var(--tt-decision-winner-color);
+  font-weight: 500;
+}
+
+.tender-table td.decision-alt {
+  color: var(--tt-decision-alt-color);
+  font-weight: 500;
+}
+
+.tender-table-status {
+  padding: 12px 14px;
+  color: var(--tt-text-color);
+}
+
+.tender-table-error {
+  color: var(--tt-error-color);
+}
+
+.tender-table-empty {
+  text-align: center;
+  padding: 16px;
+  color: var(--tt-text-color);
+  opacity: 0.6;
+}
+
+body.tender-table-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
