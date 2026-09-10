@@ -107,6 +107,16 @@
   white-space: normal;
   overflow: visible;
   text-overflow: clip;
+  word-break: break-word;
+}
+
+.tender-table td.col-Comment {
+  white-space: normal;
+  word-break: break-word;
+}
+
+.tender-table-follower {
+  overflow: hidden;
 }
 
 .tender-table-multiline {

@@ -1,4 +1,4 @@
-import React, { useState, useId, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useId, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { ITenderTableProps, ITenderRow } from './tender-table.model';
 import { fetchTenderProtocol } from './tenderProtocolApi';
 import './tender-table.css';
@@ -25,6 +25,9 @@ const COLUMNS: IColumn[] = [
 ];
 
 const MIN_COLUMN_WIDTH = 60;
+const DEFAULT_CONTENT_HEIGHT_PX = 25;
+const HEIGHT_DRIVER_COLUMNS: Array<keyof ITenderRow> = ['WinnerDetails', 'AltWinnerDetails'];
+const HEIGHT_FOLLOWER_COLUMNS: Array<keyof ITenderRow> = ['Comment'];
 
 const getDefaultWidths = (): Record<string, number> => {
   const widths: Record<string, number> = {};
@@ -87,6 +90,8 @@ const TenderTable = (props: ITenderTableProps) => {
   const uniqueId = `tender-table${useId()}`;
   const isNightTheme = props.context.theme === Theme.Night;
   const resizingRef = useRef<{ key: string; startX: number; startWidth: number } | null>(null);
+  const driverRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const followerRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const entity = props.api.getEntity<IEntity>();
   const assignmentId = entity?.Id;
 
@@ -118,6 +123,41 @@ const TenderTable = (props: ITenderTableProps) => {
   const onRowClick = (row: ITenderRow): void => {
     setSelectedId(row.CommercialOfferId);
   };
+
+  const setDriverRef = (rowId: number, key: string) => (el: HTMLDivElement | null): void => {
+    const refKey = `${rowId}:${key}`;
+    if (el) {
+      driverRefs.current.set(refKey, el);
+    } else {
+      driverRefs.current.delete(refKey);
+    }
+  };
+
+  const setFollowerRef = (rowId: number, key: string) => (el: HTMLDivElement | null): void => {
+    const refKey = `${rowId}:${key}`;
+    if (el) {
+      followerRefs.current.set(refKey, el);
+    } else {
+      followerRefs.current.delete(refKey);
+    }
+  };
+
+  useLayoutEffect(() => {
+    rows.forEach((row) => {
+      const contentHeight = HEIGHT_DRIVER_COLUMNS.reduce((max, key) => {
+        const el = driverRefs.current.get(`${row.CommercialOfferId}:${key}`);
+        return el ? Math.max(max, el.scrollHeight) : max;
+      }, DEFAULT_CONTENT_HEIGHT_PX);
+
+      HEIGHT_FOLLOWER_COLUMNS.forEach((key) => {
+        const el = followerRefs.current.get(`${row.CommercialOfferId}:${key}`);
+        if (el) {
+          el.style.height = `${contentHeight}px`;
+          el.style.overflow = 'hidden';
+        }
+      });
+    });
+  }, [rows, widths]);
 
   const handleResizeMove = useCallback((e: MouseEvent) => {
     const state = resizingRef.current;
@@ -190,7 +230,20 @@ const TenderTable = (props: ITenderTableProps) => {
                       key={col.key as string}
                       className={[`col-${col.key}`, col.key === 'Decision' ? decisionClass(row.Decision) : ''].join(' ').trim()}
                     >
-                      {renderCellContent(row, col.key)}
+                      {HEIGHT_FOLLOWER_COLUMNS.includes(col.key) ? (
+                        <div
+                          className="tender-table-follower"
+                          ref={setFollowerRef(row.CommercialOfferId, col.key as string)}
+                        >
+                          {renderCellContent(row, col.key)}
+                        </div>
+                      ) : HEIGHT_DRIVER_COLUMNS.includes(col.key) ? (
+                        <div ref={setDriverRef(row.CommercialOfferId, col.key as string)}>
+                          {renderCellContent(row, col.key)}
+                        </div>
+                      ) : (
+                        renderCellContent(row, col.key)
+                      )}
                     </td>
                   ))}
                 </tr>
