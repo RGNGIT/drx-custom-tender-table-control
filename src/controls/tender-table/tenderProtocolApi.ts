@@ -32,15 +32,7 @@ const MOCK_DATA: ITenderRow[] = [
     DiscountPercentage: '0',
     DeferralCondition: 'Тестовое условие',
     ForWinner: '1',
-    Comment: `Говно, залупа, пенис, хер, давалка, хуй, блядина
-Головка, шлюха, жопа, член, еблан, петух… Мудила
-Рукоблуд, ссанина, очко, блядун, вагина
-Сука, ебланище, влагалище, пердун, дрочила
-Пидор, пизда, туз, малафья
-Гомик, мудила, пилотка, манда
-Анус, вагина, путана, педрила
-Шалава, хуило, мошонка, елда…`,
-    WinnerDetails: 'Петров П.; Тето К.; Хатсуне М.; Шигихара Л',
+    WinnerDetails: 'Петров П.',
     ForAltWinner: '1',
     AltWinnerDetails: 'Сидоров С.',
     Decision: 'Победитель'
@@ -61,11 +53,11 @@ interface IODataStringResponse {
 }
 
 export async function fetchTenderProtocol(apiUrl?: string, assignmentId?: number | null, signal?: AbortSignal): Promise<ITenderRow[]> {
-  if (!apiUrl || assignmentId === undefined || assignmentId === null) {
-    return MOCK_DATA;
-  }
+  const isAbsolute = /^https?:\/\//i.test(apiUrl);
+  const resolvedUrl = isAbsolute ? apiUrl : `${window.location.origin}${apiUrl.startsWith('/') ? '' : '/'}${apiUrl}`;
+  const url = resolvedUrl.replace('{assignmentId}', String(assignmentId));
 
-  const url = apiUrl.replace('{assignmentId}', String(assignmentId));
+  console.log(url);
 
   try {
     const response = await fetch(url, {
