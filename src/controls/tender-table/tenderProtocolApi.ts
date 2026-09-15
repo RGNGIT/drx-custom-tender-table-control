@@ -52,12 +52,22 @@ interface IODataStringResponse {
   value: string;
 }
 
+const MOCK_DELAY_MS = 1500;
+
+function delay(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(timeoutId);
+      reject(new DOMException('Aborted', 'AbortError'));
+    });
+  });
+}
+
 export async function fetchTenderProtocol(apiUrl?: string, assignmentId?: number | null, signal?: AbortSignal): Promise<ITenderRow[]> {
   const isAbsolute = /^https?:\/\//i.test(apiUrl);
   const resolvedUrl = isAbsolute ? apiUrl : `${window.location.origin}${apiUrl.startsWith('/') ? '' : '/'}${apiUrl}`;
   const url = resolvedUrl.replace('{assignmentId}', String(assignmentId));
-
-  console.log(url);
 
   try {
     const response = await fetch(url, {

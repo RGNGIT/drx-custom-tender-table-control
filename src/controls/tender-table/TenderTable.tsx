@@ -26,6 +26,8 @@ const COLUMNS: IColumn[] = [
 
 const MIN_COLUMN_WIDTH = 60;
 const DEFAULT_CONTENT_HEIGHT_PX = 25;
+const SKELETON_ROWS = 5;
+const SKELETON_BAR_WIDTHS = [85, 60, 75, 45, 90];
 const HEIGHT_DRIVER_COLUMNS: Array<keyof ITenderRow> = ['WinnerDetails', 'AltWinnerDetails'];
 const HEIGHT_FOLLOWER_COLUMNS: Array<keyof ITenderRow> = ['Comment'];
 
@@ -194,8 +196,42 @@ const TenderTable = (props: ITenderTableProps) => {
     <div className="tender-table" id={uniqueId}>
       {props.label && <div className="tender-table-label">{props.label}</div>}
 
-      {loading && <div className="tender-table-status">Загрузка данных...</div>}
       {!loading && error && <div className="tender-table-status tender-table-error">{error}</div>}
+
+      {loading && (
+        <div className="tender-table-scroll">
+          <table style={{ width: totalWidth }}>
+            <colgroup>
+              {COLUMNS.map((col) => (
+                <col key={col.key as string} style={{ width: widths[col.key as string] }} />
+              ))}
+            </colgroup>
+            <thead>
+              <tr>
+                {COLUMNS.map((col) => (
+                  <th key={col.key as string}>
+                    <div className="tender-table-th-content">{col.title}</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: SKELETON_ROWS }).map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {COLUMNS.map((col, colIndex) => (
+                    <td key={col.key as string}>
+                      <div
+                        className="tender-table-skeleton-bar"
+                        style={{ width: `${SKELETON_BAR_WIDTHS[(rowIndex + colIndex) % SKELETON_BAR_WIDTHS.length]}%` }}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {!loading && !error && (
         <div className="tender-table-scroll">

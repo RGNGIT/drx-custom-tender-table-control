@@ -31,6 +31,10 @@
 
 .tender-table {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  contain: inline-size;
   font-size: 13px;
   color: var(--tt-text-color);
   background-color: var(--tt-bg-color);
@@ -46,6 +50,8 @@
 
 .tender-table-scroll {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   overflow: auto;
   max-height: calc(var(--tt-header-height) + var(--tt-row-height) * var(--tt-visible-rows));
 }
@@ -175,6 +181,23 @@
   padding: 16px;
   color: var(--tt-text-color);
   opacity: 0.6;
+}
+
+.tender-table-skeleton-bar {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--tt-border-color) 25%, var(--tt-row-hover-bg) 50%, var(--tt-border-color) 75%);
+  background-size: 200% 100%;
+  animation: tender-table-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes tender-table-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 body.tender-table-resizing {
