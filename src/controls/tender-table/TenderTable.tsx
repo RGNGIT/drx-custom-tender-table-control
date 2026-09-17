@@ -82,18 +82,43 @@ const renderCellContent = (row: ITenderRow, key: keyof ITenderRow): React.ReactN
   );
 };
 
+const rowsEqual = (a: ITenderRow[], b: ITenderRow[]): boolean => {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+
+  return a.every((row, index) => {
+    const other = b[index];
+    return (
+      row.CommercialOfferId === other.CommercialOfferId &&
+      row.Number === other.Number &&
+      row.Counterparty === other.Counterparty &&
+      row.FinalAmount === other.FinalAmount &&
+      row.DiscountPercentage === other.DiscountPercentage &&
+      row.DeferralCondition === other.DeferralCondition &&
+      row.Comment === other.Comment &&
+      row.ForWinner === other.ForWinner &&
+      row.WinnerDetails === other.WinnerDetails &&
+      row.ForAltWinner === other.ForAltWinner &&
+      row.AltWinnerDetails === other.AltWinnerDetails &&
+      row.Decision === other.Decision
+    );
+  });
+};
+
 const TenderTable = (props: ITenderTableProps) => {
   const [rows, setRows] = useState<ITenderRow[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [widths, setWidths] = useState<Record<string, number>>(getDefaultWidths);
+  const [refreshToken, setRefreshToken] = useState<number>(0);
 
   const uniqueId = `tender-table${useId()}`;
   const isNightTheme = props.context.theme === Theme.Night;
   const resizingRef = useRef<{ key: string; startX: number; startWidth: number } | null>(null);
   const driverRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const followerRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const isBackgroundRefreshRef = useRef<boolean>(false);
   const entity = props.api.getEntity<IEntity>();
   const assignmentId = entity?.Id;
 
@@ -106,21 +131,49 @@ const TenderTable = (props: ITenderTableProps) => {
   }, [isNightTheme]);
 
   useEffect(() => {
+    const handleControlUpdate = () => {
+      isBackgroundRefreshRef.current = true;
+      setRefreshToken((token) => token + 1);
+    };
+    props.api.onControlUpdate = handleControlUpdate;
+    return () => {
+      if (props.api.onControlUpdate === handleControlUpdate) {
+        props.api.onControlUpdate = undefined;
+      }
+    };
+  }, [props.api]);
+
+  useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError(null);
+    const isBackground = isBackgroundRefreshRef.current;
+    isBackgroundRefreshRef.current = false;
+
+    if (!isBackground) {
+      setLoading(true);
+      setError(null);
+    }
 
     fetchTenderProtocol(props.apiUrl, assignmentId, controller.signal)
-      .then((data) => setRows(data))
+      .then((data) => {
+        setRows((prev) => (rowsEqual(prev, data) ? prev : data));
+        if (isBackground) setError(null);
+      })
       .catch((err) => {
-        if ((err as Error)?.name !== 'AbortError') {
+        if ((err as Error)?.name === 'AbortError') return;
+        if (isBackground) {
+          console.warn('Не удалось обновить данные протокола в фоне.', err);
+        } else {
           setError('Не удалось загрузить данные протокола.');
         }
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        if (!isBackground) {
+          setLoading(false);
+        }
+      });
 
     return () => controller.abort();
-  }, [props.apiUrl, assignmentId]);
+  }, [props.apiUrl, assignmentId, refreshToken]);
 
   const onRowClick = (row: ITenderRow): void => {
     setSelectedId(row.CommercialOfferId);
